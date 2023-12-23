@@ -12,7 +12,7 @@ uint32_t str2i(char *str) {
     int overflow; // boolean to check overflow in main loop
     size_t slen;
     char u[32];
-    uint32_t num, d1, d2;
+    uint32_t num = 0, d1, d2; // unnecessary initialization? to avoid warning: may be used uninitialized. 
     uint32_t u_max = INT32_MAX;
     len = sprintf(u, "%u", u_max);
     slen = strlen(str);

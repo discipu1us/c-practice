@@ -15,6 +15,9 @@ test: prime
 	./prime 3000000000 2>> prime.test2 || true
 	./prime 11 73 2>> prime.test2 || true 
 	for i in $$(seq -100 10 0) ; do ./prime $$i 2>> prime.test2 || true ; done 
+	for i in $$(seq 1 1 1000) ; do echo $$i > test.input ; ./prime < test.input >> prime.test3; done 
+	cmp prime.test prime.test3
+	rm test.input prime.test3
 
 clean:
 	rm -f prime pb prime.test prime.test2

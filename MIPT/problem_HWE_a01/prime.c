@@ -1,5 +1,6 @@
 #include "sieve.h"
 #include "str2i.h"
+#include <inttypes.h>
 
 int main(int argc, char **argv) {
 
@@ -30,7 +31,7 @@ int main(int argc, char **argv) {
     size = sieve_bound(num);
     s = init_sieve(size);
     fill_sieve(&s);
-    fprintf(stdout, "%llu\n", find_prime(&s, num));
+    fprintf(stdout, "%"PRIu64"\n", find_prime(&s, num));
     free(s.mod1);
     free(s.mod5);
 
