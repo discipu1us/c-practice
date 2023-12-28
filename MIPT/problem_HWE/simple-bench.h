@@ -38,14 +38,12 @@ static double diff(struct timespec start, struct timespec end) {
   return msec / SEC_AS_MICROSEC;
 }
 
-#if 0
 static void maybe_readopt(int argc, char **argv, int n, int *x) {
   if (argc > n) {
     char *flag = NULL;
     *x = strtol(argv[n], &flag, 0);
   }
 }
-#endif
 
 // do not optimize x away
 #ifdef _MSC_VER

@@ -2,9 +2,23 @@
    Collection of functions for struct sieve_t
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <limits.h>
+#include <math.h>
 #include "sieve.h"
 
 /* additional functions */
+
+void *calloc_wrap(size_t count, size_t size) {
+    void *ptr;
+    if ( (ptr = calloc(count, size)) == NULL ) {
+        fprintf(stderr, "error: failed to allocate memory...\n");
+        exit(EXIT_FAILURE);
+    }
+    return (ptr);
+}
 
 uint32_t sieve_bound(uint32_t num) {
     double dnum, dres;
@@ -12,14 +26,14 @@ uint32_t sieve_bound(uint32_t num) {
     if (num < 20) return 2u;
     dnum = num;
     dres = dnum * (log(dnum) + log(log(dnum)));
-    bound = (((uint64_t) round(dres)) / Q6 + 1) / CHAR_BIT + 1;
+    bound = (((uint64_t) round(dres)) / 6 + 1) / CHAR_BIT + 1;
     assert(bound <= UINT32_MAX);
     return (uint32_t) bound;
 }
 
 struct sieve_t init_sieve(uint32_t size) {
-    unsigned char *mod1 = calloc(size, sizeof(unsigned char)); 
-    unsigned char *mod2 = calloc(size, sizeof(unsigned char)); 
+    unsigned char *mod1 = calloc_wrap(size, sizeof(unsigned char)); 
+    unsigned char *mod2 = calloc_wrap(size, sizeof(unsigned char)); 
     struct sieve_t res = { size, mod1, mod2 };
     assert ((size > 1) && (mod1 != NULL) && (mod2 != NULL));
     return res;
@@ -43,14 +57,14 @@ int is_prime(struct sieve_t *sv, uint64_t n) {
     int bit_index;
     if(2 == n || 3 == n)
         return 1;
-    if(1 == n % Q6) {
-        series_index = n / Q6;
+    if(1 == n % 6) {
+        series_index = n / 6;
         byte_index = series_index / CHAR_BIT;
         bit_index = series_index % CHAR_BIT;
         return ((sv->mod1[byte_index] >> bit_index) & 1) ? 0 : 1;
     }
-    if(5 == n % Q6) {
-        series_index = n / Q6;
+    if(5 == n % 6) {
+        series_index = n / 6;
         byte_index = series_index / CHAR_BIT;
         bit_index = series_index % CHAR_BIT;
         return ((sv->mod5[byte_index] >> bit_index) & 1) ? 0 : 1;
@@ -63,29 +77,29 @@ void fill_sieve(struct sieve_t *sv) {
     uint64_t m1, m5, m1_max, m5_max;
     sv->mod1[0] = 1;
     u_bound = (uint64_t)sv->n * CHAR_BIT;
-    m1_max = (uint64_t)sv->n * CHAR_BIT * Q6 + 1;
-    m5_max = (uint64_t)sv->n * CHAR_BIT * Q6 + 5;
+    m1_max = (uint64_t)sv->n * CHAR_BIT * 6 + 1;
+    m5_max = (uint64_t)sv->n * CHAR_BIT * 6 + 5;
     for(i = 1; i < sv->n; i++) {
         // Starting with 5 and 7
-        m5 = Q6 * i - 1;
-        m1 = Q6 * i + 1;
+        m5 = 6 * i - 1;
+        m1 = 6 * i + 1;
         //printf("%llu %llu\n", m1 ,m5);
         if (is_prime(sv, m5)) {
-            if((start = (m5 * (m1 - Q6)) / Q6 + m5) > m5_max) break;
+            if((start = (m5 * (m1 - 6)) / 6 + m5) > m5_max) break;
             // Fill mod5 with m5 multiples
             for(j = start; j < u_bound; j+=m5)
                 set_bit(sv->mod5, j);
-            if((start = (m5 * m5) / Q6) > m1_max) break;
+            if((start = (m5 * m5) / 6) > m1_max) break;
             // Fill mod1 with m5 multiples
             for(j = start; j < u_bound; j+=m5)
                 set_bit(sv->mod1, j);
         }
         if (is_prime(sv, m1)) {
-            if((start = (m1 * m1) / Q6) > m1_max) break;
+            if((start = (m1 * m1) / 6) > m1_max) break;
             // Fill mod1 with m1 multiples
             for(j = start; j < u_bound; j+=m1)
                 set_bit(sv->mod1, j);
-            if((start = (m1 * m5) / Q6 + m1) > m5_max) break;
+            if((start = (m1 * m5) / 6 + m1) > m5_max) break;
             // Fill mod5 with m1 multiples
             for(j = start; j < u_bound; j+=m1)
                 set_bit(sv->mod5, j);
@@ -100,12 +114,12 @@ uint64_t find_prime(struct sieve_t *sv, uint32_t n) {
     if(1 == n) return 2;
     if(2 == n) return 3;
     for(i = 0;; i++) {
-        num = Q6 * i + 1;
+        num = 6 * i + 1;
         if(is_prime(sv, num))
             counter++;
         if(counter == n)
             return num;
-        num = Q6 * i + 5;
+        num = 6 * i + 5;
         if(is_prime(sv, num))
             counter++;
         if(counter == n)

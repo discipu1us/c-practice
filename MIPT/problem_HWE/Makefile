@@ -1,4 +1,4 @@
-CFLAGS = -std=c99 -Wall -Werror -O2
+CFLAGS = -std=gnu99 -lm -Wall -O2
 
 all: prime bench test
 
@@ -17,7 +17,7 @@ test: prime
 	for i in $$(seq -100 10 0) ; do ./prime $$i 2>> prime.test2 || true ; done 
 	for i in $$(seq 1 1 1000) ; do echo $$i > test.input ; ./prime < test.input >> prime.test3; done 
 	cmp prime.test prime.test3
-	rm test.input prime.test3
+	rm test.input
 
 clean:
-	rm -f prime pb prime.test prime.test2
+	rm -f prime pb prime.test prime.test2 prime.test3

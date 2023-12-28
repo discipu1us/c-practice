@@ -28,12 +28,12 @@ uint64_t find_prime2(uint32_t n) {
     if(1 == n) return 2;
     if(2 == n) return 3;
     for(i = 0;; i++) {
-        num = Q6 * i + 1;
+        num = 6 * i + 1;
         if(is_prime2(num))
             counter++;
         if(counter == n)
             return num;
-        num = Q6 * i + 5;
+        num = 6 * i + 5;
         if(is_prime2(num))
             counter++;
         if(counter == n)

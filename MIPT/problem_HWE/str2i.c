@@ -5,6 +5,10 @@
   Whitespace and any other symbols except digits in the string will produce an error.
  
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include "str2i.h"
 
 uint32_t str2i(char *str) {

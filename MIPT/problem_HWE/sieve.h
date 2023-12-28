@@ -1,11 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
-#include <limits.h>
-#include <stdint.h>
+#ifndef SIEVE_H
+#define SIEVE_H
 
-#define Q6 6
+#include <stdint.h>
 
 struct sieve_t {
     uint32_t n; 
@@ -19,3 +15,5 @@ extern void set_bit(unsigned char *arr, uint64_t n);
 extern int is_prime(struct sieve_t *sv, uint64_t n);
 extern uint64_t find_prime(struct sieve_t *sv, uint32_t n);
 extern void fill_sieve(struct sieve_t *sv);
+
+#endif

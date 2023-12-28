@@ -2,9 +2,12 @@
     Benchmarking and testing for naive and sieve algorithms for searching nth prime.
 */
 
+#include <stdio.h>
+#include <stdlib.h> // for free
+#include <assert.h>
 #include "sieve.h"
 #include "naive.h"
-#include "simple-bench.c"
+#include "simple-bench.h"
 
 int main() {
 
