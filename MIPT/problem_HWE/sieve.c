@@ -55,6 +55,7 @@ int is_prime(struct sieve_t *sv, uint64_t n) {
     uint64_t series_index; 
     uint32_t byte_index; 
     int bit_index;
+    assert(sv != NULL);
     if(2 == n || 3 == n)
         return 1;
     if(1 == n % 6) {
@@ -111,6 +112,7 @@ uint64_t find_prime(struct sieve_t *sv, uint32_t n) {
     uint64_t i, num;
     uint32_t counter = 2;
     assert(n <= INT32_MAX && n >= 1);
+    assert(sv != NULL);
     if(1 == n) return 2;
     if(2 == n) return 3;
     for(i = 0;; i++) {
