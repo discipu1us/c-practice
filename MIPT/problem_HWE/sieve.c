@@ -1,5 +1,5 @@
 /*
-   Collection of functions for struct sieve_t
+   struct sieve_t definition and collection of functions for using it
 */
 
 #include <stdio.h>
@@ -8,6 +8,12 @@
 #include <limits.h>
 #include <math.h>
 #include "sieve.h"
+
+struct sieve_t {
+    unsigned n; 
+    unsigned char *mod1;
+    unsigned char *mod5;
+};
 
 /* additional functions */
 
@@ -20,18 +26,18 @@ void *calloc_wrap(size_t count, size_t size) {
     return (ptr);
 }
 
-uint32_t sieve_bound(uint32_t num) {
+unsigned sieve_bound(unsigned num) {
     double dnum, dres;
-    uint64_t bound;
+    unsigned long bound;
     if (num < 20) return 2u;
     dnum = num;
     dres = dnum * (log(dnum) + log(log(dnum)));
-    bound = (((uint64_t) round(dres)) / 6 + 1) / CHAR_BIT + 1;
-    assert(bound <= UINT32_MAX);
-    return (uint32_t) bound;
+    bound = (((unsigned long) round(dres)) / 6 + 1) / CHAR_BIT + 1;
+    assert(bound <= UINT_MAX);
+    return (unsigned) bound;
 }
 
-struct sieve_t init_sieve(uint32_t size) {
+struct sieve_t init_sieve(unsigned size) {
     unsigned char *mod1 = calloc_wrap(size, sizeof(unsigned char)); 
     unsigned char *mod2 = calloc_wrap(size, sizeof(unsigned char)); 
     struct sieve_t res = { size, mod1, mod2 };
@@ -39,9 +45,9 @@ struct sieve_t init_sieve(uint32_t size) {
     return res;
 }
 
-void set_bit(unsigned char *arr, uint64_t n) {
+void set_bit(unsigned char *arr, unsigned long n) {
     // compute byte index and bit index to update given n
-    uint32_t byte_index, bit_index;
+    unsigned byte_index, bit_index;
     assert(CHAR_BIT > 0 && n != 0 && (n / CHAR_BIT) <= UINT32_MAX);
     byte_index = n / CHAR_BIT;
     bit_index = n % CHAR_BIT;
@@ -51,9 +57,9 @@ void set_bit(unsigned char *arr, uint64_t n) {
 
 /* base functions */
 
-int is_prime(struct sieve_t *sv, uint64_t n) {
-    uint64_t series_index; 
-    uint32_t byte_index; 
+int is_prime(struct sieve_t *sv, unsigned long n) {
+    unsigned long series_index; 
+    unsigned byte_index; 
     int bit_index;
     assert(sv != NULL);
     if(2 == n || 3 == n)
@@ -74,12 +80,12 @@ int is_prime(struct sieve_t *sv, uint64_t n) {
 }
 
 void fill_sieve(struct sieve_t *sv) {
-    uint64_t i, j, start, u_bound;
-    uint64_t m1, m5, m1_max, m5_max;
+    unsigned long i, j, start, u_bound;
+    unsigned long m1, m5, m1_max, m5_max;
     sv->mod1[0] = 1;
-    u_bound = (uint64_t)sv->n * CHAR_BIT;
-    m1_max = (uint64_t)sv->n * CHAR_BIT * 6 + 1;
-    m5_max = (uint64_t)sv->n * CHAR_BIT * 6 + 5;
+    u_bound = (unsigned long)sv->n * CHAR_BIT;
+    m1_max = (unsigned long)sv->n * CHAR_BIT * 6 + 1;
+    m5_max = (unsigned long)sv->n * CHAR_BIT * 6 + 5;
     for(i = 1; i < sv->n; i++) {
         // Starting with 5 and 7
         m5 = 6 * i - 1;
@@ -108,10 +114,10 @@ void fill_sieve(struct sieve_t *sv) {
     }
 }
 
-uint64_t find_prime(struct sieve_t *sv, uint32_t n) {
-    uint64_t i, num;
-    uint32_t counter = 2;
-    assert(n <= INT32_MAX && n >= 1);
+unsigned long find_prime(struct sieve_t *sv, unsigned n) {
+    unsigned long i, num;
+    unsigned counter = 2;
+    assert(n <= UINT_MAX && n >= 1);
     assert(sv != NULL);
     if(1 == n) return 2;
     if(2 == n) return 3;
@@ -127,4 +133,11 @@ uint64_t find_prime(struct sieve_t *sv, uint32_t n) {
         if(counter == n)
             return num;
     }
+}
+
+void free_sieve(struct sieve_t *sv) {
+    if(!sv) {
+        free(sv->mod1);
+        free(sc->mod5);
+    };
 }

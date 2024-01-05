@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
 #include "sieve.h"
 #include "str2i.h"
 
@@ -8,7 +7,7 @@ int main(int argc, char **argv) {
 
     int r;
     int32_t input;
-    uint32_t num, size;
+    unsigned num, size;
     struct sieve_t s;
 
     if(argc > 2) {
@@ -33,9 +32,8 @@ int main(int argc, char **argv) {
     size = sieve_bound(num);
     s = init_sieve(size);
     fill_sieve(&s);
-    fprintf(stdout, "%"PRIu64"\n", find_prime(&s, num));
-    free(s.mod1);
-    free(s.mod5);
+    fprintf(stdout, "%lu\n", find_prime(&s, num));
+    free_sieve(&s);
 
     return 0;
 }

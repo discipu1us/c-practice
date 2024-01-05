@@ -1,7 +1,7 @@
 /*
    
   Custom function to convert string to a POSITIVE unsigned int.
-  Correct string representation is a positive number in base 10 and upper bound of INT32_MAX.
+  Correct string representation is a positive number in base 10 and upper bound of UINT_MAX.
   Whitespace and any other symbols except digits in the string will produce an error.
  
 */
@@ -11,13 +11,13 @@
 #include <ctype.h>
 #include "str2i.h"
 
-uint32_t str2i(char *str) {
+unsigned str2i(char *str) {
     int len, i; 
     int overflow; // boolean to check overflow in main loop
     size_t slen;
     char u[32];
-    uint32_t num = 0, d1, d2; // unnecessary initialization? to avoid warning: may be used uninitialized. 
-    uint32_t u_max = INT32_MAX;
+    unsigned num = 0, d1, d2; // unnecessary initialization? to avoid warning: may be used uninitialized. 
+    unsigned u_max = UINT_MAX;
     len = sprintf(u, "%u", u_max);
     slen = strlen(str);
     // certain overflow

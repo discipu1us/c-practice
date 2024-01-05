@@ -1,9 +1,7 @@
 #ifndef NAIVE_H
 #define NAIVE_H 
 
-#include <stdint.h>
-
-extern int is_prime2(uint64_t n);
-extern uint64_t find_prime2(uint32_t n);
+extern int is_prime2(unsigned long n);
+extern unsigned long find_prime2(unsigned n);
 
 #endif

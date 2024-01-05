@@ -5,6 +5,6 @@
 
 #define BASE 10
 
-uint32_t str2i(char *str);
+unsigned str2i(char *str);
 
 #endif

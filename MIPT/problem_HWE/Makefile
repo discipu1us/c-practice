@@ -1,12 +1,21 @@
-CFLAGS = -std=gnu99 -lm -Wall -O2
+CFLAGS = -std=gnu99 -lm -Wall -fsanitize=undefined -fsanitize=leak -fsanitize=address -O2
 
 all: prime bench test
 
-prime: str2i.c sieve.c prime.c
-	cc $(CFLAGS) str2i.c sieve.c prime.c -o prime
+sieve.o: sieve.c sieve.h
 
-bench: sieve.c naive.c prime_bench.c
-	cc $(CFLAGS) sieve.c naive.c prime_bench.c -o pb
+str2i.o: str2i.c str2i.h
+
+naive.o: naive.c naive.h
+
+%.o: %.c
+	cc $(CFLAGS) -o $@ -c $<
+
+prime: str2i.o sieve.o prime.c
+	cc $(CFLAGS) str2i.o sieve.o prime.c -o prime
+
+bench: sieve.o naive.o prime_bench.c simple-bench.h
+	cc $(CFLAGS) sieve.o naive.o prime_bench.c -o pb
 
 test: prime
 	./prime 1 > prime.test 
@@ -20,4 +29,4 @@ test: prime
 	rm test.input
 
 clean:
-	rm -f prime pb prime.test prime.test2 prime.test3
+	rm -f prime pb prime.test prime.test2 prime.test3 *.o

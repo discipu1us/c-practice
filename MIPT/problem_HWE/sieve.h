@@ -1,19 +1,14 @@
 #ifndef SIEVE_H
 #define SIEVE_H
 
-#include <stdint.h>
+struct sieve_t;
 
-struct sieve_t {
-    uint32_t n; 
-    unsigned char *mod1;
-    unsigned char *mod5;
-};
-
-extern uint32_t sieve_bound(uint32_t num);
-extern struct sieve_t init_sieve(uint32_t size);
-extern void set_bit(unsigned char *arr, uint64_t n);
-extern int is_prime(struct sieve_t *sv, uint64_t n);
-extern uint64_t find_prime(struct sieve_t *sv, uint32_t n);
+extern unsigned sieve_bound(unsigned num);
+extern struct sieve_t init_sieve(unsigned size);
+extern void set_bit(unsigned char *arr, unsigned long n);
+extern int is_prime(struct sieve_t *sv, unsigned long n);
+extern unsigned long find_prime(struct sieve_t *sv, unsigned n);
 extern void fill_sieve(struct sieve_t *sv);
+extern void free_sieve(struct sieve_t *sv);
 
 #endif

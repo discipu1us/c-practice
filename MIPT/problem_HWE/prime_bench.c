@@ -12,8 +12,8 @@
 int main() {
 
     struct sieve_t s;
-    uint32_t i, size;
-    uint64_t res1, res2;
+    unsigned i, size;
+    unsigned long res1, res2;
     double t;
     struct timespec t1,t2;
     char margin1 = 17;
@@ -33,8 +33,7 @@ int main() {
         res1 = find_prime(&s, i);
         simple_gettime(&t2);
         t = diff(t1,t2);
-        free(s.mod1);
-        free(s.mod5);
+        free_sieve(&s);
 
         printf("%*lf", margin1--, t);
 
