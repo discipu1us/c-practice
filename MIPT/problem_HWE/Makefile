@@ -1,4 +1,9 @@
-CFLAGS = -std=gnu99 -lm -Wall -fsanitize=undefined -fsanitize=leak -fsanitize=address -O2
+NODEBUG ?= 1
+ifeq ($(NODEBUG), 1)
+    CFLAGS = -std=gnu99 -lm -Wall -O2 -DNDEBUG
+else
+    CFLAGS = -std=gnu99 -lm -Wall -fsanitize=undefined -fsanitize=address -fsanitize=leak -O2
+endif
 
 all: prime bench test
 

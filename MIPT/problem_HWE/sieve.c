@@ -17,7 +17,7 @@ struct sieve_t {
 
 /* additional functions */
 
-void *calloc_wrap(size_t count, size_t size) {
+static void *calloc_wrap(size_t count, size_t size) {
     void *ptr;
     if ( (ptr = calloc(count, size)) == NULL ) {
         fprintf(stderr, "error: failed to allocate memory...\n");
@@ -37,15 +37,16 @@ unsigned sieve_bound(unsigned num) {
     return (unsigned) bound;
 }
 
-struct sieve_t init_sieve(unsigned size) {
-    unsigned char *mod1 = calloc_wrap(size, sizeof(unsigned char)); 
-    unsigned char *mod2 = calloc_wrap(size, sizeof(unsigned char)); 
-    struct sieve_t res = { size, mod1, mod2 };
-    assert ((size > 1) && (mod1 != NULL) && (mod2 != NULL));
-    return res;
+struct sieve_t *init_sieve(struct sieve_t *sv, unsigned size) {
+    sv = calloc_wrap(1, sizeof(struct sieve_t));
+    sv->n = size;
+    sv->mod1 = calloc_wrap(size, sizeof(unsigned char)); 
+    sv->mod5 = calloc_wrap(size, sizeof(unsigned char)); 
+    assert ((size > 1) && (sv->mod1 != NULL) && (sv->mod5 != NULL));
+    return sv;
 }
 
-void set_bit(unsigned char *arr, unsigned long n) {
+static void set_bit(unsigned char *arr, unsigned long n) {
     // compute byte index and bit index to update given n
     unsigned byte_index, bit_index;
     assert(CHAR_BIT > 0 && n != 0 && (n / CHAR_BIT) <= UINT_MAX);
@@ -136,8 +137,10 @@ unsigned long find_prime(struct sieve_t *sv, unsigned n) {
 }
 
 void free_sieve(struct sieve_t *sv) {
-    if(!sv) {
+    if(sv){    
         free(sv->mod1);
         free(sv->mod5);
-    };
+        free(sv);
+        sv = NULL;
+    };    
 }

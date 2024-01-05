@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "sieve.h"
 #include "str2i.h"
 
@@ -8,7 +9,11 @@ int main(int argc, char **argv) {
     int r;
     int32_t input;
     unsigned num, size;
-    struct sieve_t s;
+    struct sieve_t *s = NULL;
+
+    /* test if unsigned long > unsigned */
+    _Static_assert(sizeof(unsigned long) > sizeof(unsigned), 
+            "expected unsigned long to be bigger than unsigned");
 
     if(argc > 2) {
         fprintf(stderr, "usage: %s [n]\n"
@@ -30,10 +35,10 @@ int main(int argc, char **argv) {
     else 
         num = str2i(argv[1]); 
     size = sieve_bound(num);
-    s = init_sieve(size);
-    fill_sieve(&s);
-    fprintf(stdout, "%lu\n", find_prime(&s, num));
-    free_sieve(&s);
+    s = init_sieve(s, size);
+    fill_sieve(s);
+    fprintf(stdout, "%lu\n", find_prime(s, num));
+    free_sieve(s);
 
     return 0;
 }
