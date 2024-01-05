@@ -48,7 +48,7 @@ struct sieve_t init_sieve(unsigned size) {
 void set_bit(unsigned char *arr, unsigned long n) {
     // compute byte index and bit index to update given n
     unsigned byte_index, bit_index;
-    assert(CHAR_BIT > 0 && n != 0 && (n / CHAR_BIT) <= UINT32_MAX);
+    assert(CHAR_BIT > 0 && n != 0 && (n / CHAR_BIT) <= UINT_MAX);
     byte_index = n / CHAR_BIT;
     bit_index = n % CHAR_BIT;
     // update
@@ -138,6 +138,6 @@ unsigned long find_prime(struct sieve_t *sv, unsigned n) {
 void free_sieve(struct sieve_t *sv) {
     if(!sv) {
         free(sv->mod1);
-        free(sc->mod5);
+        free(sv->mod5);
     };
 }
