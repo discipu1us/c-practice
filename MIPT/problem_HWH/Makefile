@@ -16,4 +16,4 @@ hash: hashtable.o main.c
 	cc $(CFLAGS) hashtable.o main.c -o hash
 
 clean:
-	rm -f hash
+	rm -f hash *.o

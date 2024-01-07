@@ -5,6 +5,7 @@
 
 struct node_t {
   char *token;
+  unsigned long freq;
   struct node_t *next;
 };
 
@@ -44,6 +45,30 @@ int is_member(Node *top, const char *token) {
   return 0;
 }
 
+void compare_and_count(Node *top, const char *token) {
+  if(!top) return;
+  do {
+    if (!strcmp(top->token, token)) {
+      top->freq += 1;
+      return;
+    }
+    top = top->next;
+  } while(top);
+  return;
+}
+
+void compare_and_print(Node *top, const char *token) {
+  if(!top) return;
+  do {
+    if (!strcmp(top->token, token)) {
+      printf("%lu ", top->freq);
+      return;
+    }
+    top = top->next;
+  } while(top);
+  return;
+}
+
 void print_list(Node *top) {
   if(!top) return;
   do {
@@ -57,6 +82,7 @@ Node *add(Node *top, const char *token) {
   if(!top) {
     top = malloc_wrap(sizeof(Node));
     top->next = NULL;
+    top->freq = 0;
     top->token = malloc_wrap((strlen(token) + 1) * sizeof(char));
     top->token = strcpy(top->token, token);
     return top;
@@ -64,6 +90,7 @@ Node *add(Node *top, const char *token) {
   if(is_member(top, token)) return top;
   new = malloc_wrap(sizeof(Node));
   new->next = top;
+  new->freq = 0;
   new->token = malloc_wrap((strlen(token) + 1) * sizeof(char));
   new->token = strcpy(new->token, token);
   return new;
@@ -117,8 +144,25 @@ void add2table(Hashtable *table, const char *token) {
   unsigned long index;
   if(!table) return;
   index = hash(token, table->size);
+  //printf("\n %s %lu\n", token, index);
   table->dict[index] = add(table->dict[index], token);
-  print_list(table->dict[index]);
+  //print_list(table->dict[index]);
+}
+
+void count_words(Hashtable *table, const char *token) {
+  unsigned long index;
+  if(!table) return;
+  index = hash(token, table->size);
+  if(!(table->dict[index])) return;
+  compare_and_count(table->dict[index], token);
+}
+
+void print_frequency(Hashtable *table, const char *token) {
+  unsigned long index;
+  if(!table) return;
+  index = hash(token, table->size);
+  if(!(table->dict[index])) return;
+  compare_and_print(table->dict[index], token);
 }
 
 void free_table(Hashtable *table) {
@@ -130,4 +174,3 @@ void free_table(Hashtable *table) {
   free(table);
   table = NULL;
 }
-

@@ -3,15 +3,16 @@
 #include <string.h>
 #include "hashtable.h"
 
-#define MULT 1
+#define MULT 100
 
 int main(void) {
 
     unsigned int size, len1, len2;
-    char *str1, *str2, *token;
+    char *str1, *str2, *str3, *token;
     unsigned long m;
-    //Node *list = NULL;
     Hashtable *hashtable = NULL;
+
+    /* Input handler */
 
     fscanf(stdin, "%u", &size);
     fscanf(stdin, "%u\n", &len1);
@@ -20,12 +21,9 @@ int main(void) {
     fscanf(stdin, "%u\n", &len2);
     str2 = malloc_wrap(++len2 * sizeof(char));
     fgets(str2, len2, stdin);
+    str3 = malloc_wrap(len2 * sizeof(char));
+    strcpy(str3, str2);
     
-    //printf("%s", str1);
-    //printf("%s", str2);
-    //printf("%u %u\n", len1, len2);
-    //printf("%zu\n", sizeof(Node*));
-    //printf("%d %d\n", hash(str1, size*2), hash(str2, size*2));
 
     m = (unsigned long)size * MULT;
     hashtable = init(hashtable, m);
@@ -34,25 +32,29 @@ int main(void) {
 
     token = strtok(str2, " ");
     while (token != NULL) {
-        //printf("%s %lu \n", token, hash(token, m));
-        //list = add(list, token);
-        //hashtable[hash(token, m)] = add(hashtable[hash(token, m)], token);
-        //print_list(hashtable[hash(token, m)]);
         add2table(hashtable, token);
         token = strtok(NULL, " ");
-        //list = NULL;
     };
-
-    free_table(hashtable);
-    free(str1);
     free(str2);
-    /* Parse str1 with strtok and count with hashtable*/
+    
+    /* Parse str1 with strtok and count frequencies */
 
+    token = strtok(str1, " ");
+    while (token != NULL) {
+        count_words(hashtable, token);
+        token = strtok(NULL, " ");
+    };
+    free(str1);
 
-    //list = add(list, str1);
-    //list = add(list, str2);
-    //print_list(list);
-    //free_list(list);
+    /* Print results and free hashtable */ 
+
+    token = strtok(str3, " ");
+    while (token != NULL) {
+        print_frequency(hashtable, token);
+        token = strtok(NULL, " ");
+    };
+    printf("\n");
+    free(str3);
+    free_table(hashtable);
     return 0;
-
 }
