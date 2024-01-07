@@ -39,16 +39,19 @@ void *malloc_wrap(size_t size) {
 /* functions for struct node_t aka Node */
 
 int is_member(Node *top, const char *token) {
-  if(!top) return 0;
+  if(!top) 
+    return 0;
   do {
-    if (!strcmp(top->token, token)) return 1;
+    if (!strcmp(top->token, token)) 
+      return 1;
     top = top->next;
   } while(top);
   return 0;
 }
 
 void compare_and_count(Node *top, const char *token) {
-  if(!top) return;
+  if(!top) 
+    return;
   do {
     if (!strcmp(top->token, token)) {
       top->freq += 1;
@@ -60,7 +63,8 @@ void compare_and_count(Node *top, const char *token) {
 }
 
 void compare_and_print(Node *top, const char *token) {
-  if(!top) return;
+  if(!top) 
+    return;
   do {
     if (!strcmp(top->token, token)) {
       printf("%lu ", top->freq);
@@ -72,7 +76,8 @@ void compare_and_print(Node *top, const char *token) {
 }
 
 void print_list(Node *top) {
-  if(!top) return;
+  if(!top) 
+    return;
   do {
     printf("%s\n", top->token);
     top = top->next;
@@ -89,7 +94,8 @@ Node *add(Node *top, const char *token) {
     top->token = strcpy(top->token, token);
     return top;
   }
-  if(is_member(top, token)) return top;
+  if(is_member(top, token)) 
+    return top;
   new = malloc_wrap(sizeof(Node));
   new->next = top;
   new->freq = 0;
@@ -100,7 +106,8 @@ Node *add(Node *top, const char *token) {
 
 void free_list(Node *top) {
   Node *tmp;  
-  if(!top) return; //nothing to free
+  if(!top) 
+    return; //nothing to free
   do {
     tmp = top;
     top = top->next;
@@ -126,7 +133,7 @@ unsigned long djb2(const char *str) {
   int c;
   while ((c = *str++))
     hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-    return hash;
+  return hash;
 }
 
 unsigned long hash(const char *str, unsigned long m) {
@@ -144,30 +151,36 @@ Hashtable *init(Hashtable *table, unsigned long size) {
 
 void add2table(Hashtable *table, const char *token) {
   unsigned long index;
-  if(!table) return;
+  if(!table) 
+    return;
   index = hash(token, table->size);
   table->dict[index] = add(table->dict[index], token);
 }
 
 void count_words(Hashtable *table, const char *token) {
   unsigned long index;
-  if(!table) return;
+  if(!table) 
+    return;
   index = hash(token, table->size);
-  if(!(table->dict[index])) return;
+  if(!(table->dict[index]))
+    return;
   compare_and_count(table->dict[index], token);
 }
 
 void print_frequency(Hashtable *table, const char *token) {
   unsigned long index;
-  if(!table) return;
+  if(!table)
+    return;
   index = hash(token, table->size);
-  if(!(table->dict[index])) return;
+  if(!(table->dict[index]))
+    return;
   compare_and_print(table->dict[index], token);
 }
 
 void free_table(Hashtable *table) {
   unsigned long i;
-  if(!table) return;
+  if(!table)
+    return;
   for(i = 0; i < table->size; i++)
     free_list(table->dict[i]);
   free(table->dict);
@@ -204,7 +217,8 @@ int main(void) {
     while (token != NULL) {
         add2table(hashtable, token);
         token = strtok(NULL, " ");
-    };
+    }
+    ;
     free(str2);
     
     /* Parse str1 with strtok and count frequencies */
@@ -213,7 +227,8 @@ int main(void) {
     while (token != NULL) {
         count_words(hashtable, token);
         token = strtok(NULL, " ");
-    };
+    }
+    ;
     free(str1);
 
     /* Print results and free hashtable */ 
@@ -222,7 +237,8 @@ int main(void) {
     while (token != NULL) {
         print_frequency(hashtable, token);
         token = strtok(NULL, " ");
-    };
+    }
+    ;
     printf("\n");
     free(str3);
     free_table(hashtable);
