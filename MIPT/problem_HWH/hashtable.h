@@ -12,5 +12,6 @@ void free_list(Node *top);
 
 Hashtable *init(Hashtable *table, unsigned long size);
 void add2table(Hashtable *table, const char *token);
+void free_table(Hashtable *table);
 
 #endif

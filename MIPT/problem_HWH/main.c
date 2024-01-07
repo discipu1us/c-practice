@@ -15,10 +15,10 @@ int main(void) {
 
     fscanf(stdin, "%u", &size);
     fscanf(stdin, "%u\n", &len1);
-    str1 = malloc_wrap(len1++ * sizeof(char));
+    str1 = malloc_wrap(++len1 * sizeof(char));
     fgets(str1, len1, stdin);
     fscanf(stdin, "%u\n", &len2);
-    str2 = malloc_wrap(len2++ * sizeof(char));
+    str2 = malloc_wrap(++len2 * sizeof(char));
     fgets(str2, len2, stdin);
     
     //printf("%s", str1);
@@ -43,6 +43,9 @@ int main(void) {
         //list = NULL;
     };
 
+    free_table(hashtable);
+    free(str1);
+    free(str2);
     /* Parse str1 with strtok and count with hashtable*/
 
 

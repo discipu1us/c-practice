@@ -117,6 +117,17 @@ void add2table(Hashtable *table, const char *token) {
   unsigned long index;
   if(!table) return;
   index = hash(token, table->size);
-  (table->dict)[index] = add((table->dict)[index], token);
-  print_list((table->dict)[index]);
+  table->dict[index] = add(table->dict[index], token);
+  print_list(table->dict[index]);
 }
+
+void free_table(Hashtable *table) {
+  unsigned long i;
+  if(!table) return;
+  for(i = 0; i < table->size; i++)
+    free_list(table->dict[i]);
+  free(table->dict);
+  free(table);
+  table = NULL;
+}
+
