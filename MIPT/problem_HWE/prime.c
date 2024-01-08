@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <limits.h>
 #include "sieve.h"
 #include "str2i.h"
 
 int main(int argc, char **argv) {
 
     int r;
-    int32_t input;
+    int input;
     unsigned num, size;
     struct sieve_t *s = NULL;
 
@@ -18,7 +19,7 @@ int main(int argc, char **argv) {
     if(argc > 2) {
         fprintf(stderr, "usage: %s [n]\n"
                         "    n: number between 1 and %u\n", 
-                        argv[0], INT32_MAX);
+                        argv[0], UINT_MAX);
         exit(EXIT_FAILURE);
     }
     if(1 == argc) {
