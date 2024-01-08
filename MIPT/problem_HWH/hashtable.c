@@ -3,11 +3,11 @@
 #include <string.h>
 #include "hashtable.h"
 
-struct node_t {
+typedef struct node_t {
   char *token;
   unsigned long freq;
   struct node_t *next;
-};
+} Node;
 
 struct hashtable_t {
   unsigned long size;
@@ -16,7 +16,7 @@ struct hashtable_t {
 
 /* wrappers for dynamic allocation */
 
-void *calloc_wrap(size_t count, size_t size) {
+static void *calloc_wrap(size_t count, size_t size) {
     void *ptr;
     if ( (ptr = calloc(count, size)) == NULL ) {
         fprintf(stderr, "error: failed to allocate memory...\n");
@@ -36,7 +36,7 @@ void *malloc_wrap(size_t size) {
 
 /* functions for struct node_t aka Node */
 
-int is_member(Node *top, const char *token) {
+static int is_member(Node *top, const char *token) {
   if(!top) return 0;
   do {
     if (!strcmp(top->token, token)) return 1;
@@ -45,7 +45,7 @@ int is_member(Node *top, const char *token) {
   return 0;
 }
 
-void compare_and_count(Node *top, const char *token) {
+static void compare_and_count(Node *top, const char *token) {
   if(!top) return;
   do {
     if (!strcmp(top->token, token)) {
@@ -57,7 +57,7 @@ void compare_and_count(Node *top, const char *token) {
   return;
 }
 
-void compare_and_print(Node *top, const char *token) {
+static void compare_and_print(Node *top, const char *token) {
   if(!top) return;
   do {
     if (!strcmp(top->token, token)) {
@@ -69,15 +69,17 @@ void compare_and_print(Node *top, const char *token) {
   return;
 }
 
-void print_list(Node *top) {
+#if 0
+static void print_list(Node *top) {
   if(!top) return;
   do {
     printf("%s\n", top->token);
     top = top->next;
   } while (top);
 }
+#endif
 
-Node *add(Node *top, const char *token) {
+static Node *add(Node *top, const char *token) {
   Node *new;
   if(!top) {
     top = malloc_wrap(sizeof(Node));
@@ -96,7 +98,7 @@ Node *add(Node *top, const char *token) {
   return new;
 }
 
-void free_list(Node *top) {
+static void free_list(Node *top) {
   Node *tmp;  
   if(!top) return; //nothing to free
   do {
@@ -109,6 +111,7 @@ void free_list(Node *top) {
 
 /* Hash functions for strings */
 
+#if 0
 //sdbm algo
 static unsigned long sdbm(const char *str) {
   unsigned long hash = 0;
@@ -117,6 +120,7 @@ static unsigned long sdbm(const char *str) {
     hash = c + (hash << 6) + (hash << 16) - hash;
   return hash;
 }
+#endif
 
 //djb2 algo
 static unsigned long djb2(const char *str) {
@@ -124,7 +128,7 @@ static unsigned long djb2(const char *str) {
   int c;
   while ((c = *str++))
     hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-    return hash;
+  return hash;
 }
 
 static unsigned long hash(const char *str, unsigned long m) {
@@ -144,9 +148,7 @@ void add2table(Hashtable *table, const char *token) {
   unsigned long index;
   if(!table) return;
   index = hash(token, table->size);
-  //printf("\n %s %lu\n", token, index);
   table->dict[index] = add(table->dict[index], token);
-  //print_list(table->dict[index]);
 }
 
 void count_words(Hashtable *table, const char *token) {
