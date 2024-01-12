@@ -5,6 +5,15 @@
 
 #define MULT 100
 
+//djb2 algo
+unsigned long djb2(const char *str) {
+  unsigned long hash = 5381;
+  int c;
+  while ((c = *str++))
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  return hash;
+}
+
 int main(void) {
 
     unsigned int size, len1, len2;
@@ -26,7 +35,7 @@ int main(void) {
     
 
     m = (unsigned long)size * MULT;
-    hashtable = init(hashtable, m);
+    hashtable = init(hashtable, m, djb2);
 
     /* Parse str2 with strtok and fill hashtable with results */
 

@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "hashtable.h"
+
+#define LOAD_FACTOR 0.75
 
 typedef struct node_t {
   char *token;
@@ -10,8 +13,10 @@ typedef struct node_t {
 } Node;
 
 struct hashtable_t {
-  unsigned long size;
-  unsigned long (*hash_func)(const char *str);
+  unsigned size;  // size of hashtable
+  unsigned elems; // number of elements in hashtable
+  double load;    // limiting load factor for automatic rehashing
+  char rehash;    // boolean if expanding of hashtable is possible
   Node **dict;
 };
 
@@ -123,46 +128,93 @@ static unsigned long sdbm(const char *str) {
 }
 #endif
 
+//djb2 algo
+static unsigned long djb2(const char *str) {
+  unsigned long hash = 5381;
+  int c;
+  while ((c = *str++))
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  return hash;
+}
+
+static unsigned hash(const char *str, unsigned m) {
+  return unsigned(djb2(str) % m);
+}
+
 /* Functions for struct hashtable_t aka Hashtable */
 
-Hashtable *init(Hashtable *table, unsigned long size,
-  unsigned long (*hash)(const char *str)) {
+Hashtable *init(Hashtable *table, unsigned size, 
+  unsigned long (*hash_func)(const char str*)) {
+  if(!size) return table;
   table = malloc_wrap(sizeof(Hashtable));
   table->size = size;
-  table->hash_func = hash;
+  table->elems = 0;
+  table->load = LOAD_FACTOR;
+  table->rehash = 1;
   table->dict = calloc_wrap(size, sizeof(Node*));
   return table;
 }
 
-static unsigned long hash(Hashtable *table, const char *str) {
-  return table->hash_func(str) % table->size;
+double get_load(Hashtable *table) {
+  if(!table) return 0;
+  assert(table->size != 0);
+  return (double(table->elems) / table->size);
+} 
+
+void rehash(Hashtable *table, double mult) {
+  Node **new_dict;
+  unsigned i, new_size;
+  if(mult <= 1 || mult > 3 ) return; // allow to expand only up to a factor of 3  
+  new_size = unsigned(table->size * mult);
+  if(new_size > table->size) {
+    new_dict = realloc(table->dict, new_size);
+    if(new_table == NULL) // failed to allocate memory
+      table->rehash = 0;  // turn off auto rehashing and leave original table 
+    table->dict = new_dict;
+    free(table->dict);
+    // update elements postions
+    for(i = 0; i < table->size; i++) {
+      
+    }
+    table->size = new_size;
+  }
+  table->rehash = 0; // new_size unsigned overflow -> no rehashing
 }
 
 void add2table(Hashtable *table, const char *token) {
-  unsigned long index;
+  unsigned index;
+  Node *prev;
   if(!table) return;
-  index = hash(table, token);
-  table->dict[index] = add(table->dict[index], token);
+  index = hash(token, table->size);
+  prev = table->dict[index];
+  table->dict[index] = add(table->dict[index], token);{
+  if(prev != table->dict[index]) { 
+    // above inequality means that new element was added
+    table->elems++;
+    // so it's time to check if rehashing is needed 
+    if(table->rehash && (get_load(table) > table->load))
+      rehash(table);
+  };
 }
 
 void count_words(Hashtable *table, const char *token) {
-  unsigned long index;
+  unsigned index;
   if(!table) return;
-  index = hash(table, token);
+  index = hash(token, table->size);
   if(!(table->dict[index])) return;
   compare_and_count(table->dict[index], token);
 }
 
 void print_frequency(Hashtable *table, const char *token) {
-  unsigned long index;
+  unsigned index;
   if(!table) return;
-  index = hash(table, token);
+  index = hash(token, table->size);
   if(!(table->dict[index])) return;
   compare_and_print(table->dict[index], token);
 }
 
 void free_table(Hashtable *table) {
-  unsigned long i;
+  unsigned i;
   if(!table) return;
   for(i = 0; i < table->size; i++)
     free_list(table->dict[i]);
