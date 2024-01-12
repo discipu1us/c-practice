@@ -18,7 +18,6 @@ int main(void) {
 
     unsigned int size, len1, len2;
     char *str1, *str2, *str3, *token;
-    unsigned long m;
     Hashtable *hashtable = NULL;
 
     /* Input handler */
@@ -33,9 +32,7 @@ int main(void) {
     str3 = malloc_wrap(len2 * sizeof(char));
     strcpy(str3, str2);
     
-
-    m = (unsigned long)size * MULT;
-    hashtable = init(hashtable, m, djb2);
+    hashtable = init(hashtable, size, djb2);
 
     /* Parse str2 with strtok and fill hashtable with results */
 

@@ -10,7 +10,7 @@ typedef struct node_t {
 } Node;
 
 struct hashtable_t {
-  unsigned long size;
+  unsigned size;
   unsigned long (*hash_func)(const char *str);
   Node **dict;
 };
@@ -125,7 +125,7 @@ static unsigned long sdbm(const char *str) {
 
 /* Functions for struct hashtable_t aka Hashtable */
 
-Hashtable *init(Hashtable *table, unsigned long size,
+Hashtable *init(Hashtable *table, unsigned size,
   unsigned long (*hash)(const char *str)) {
   table = malloc_wrap(sizeof(Hashtable));
   table->size = size;
@@ -134,19 +134,19 @@ Hashtable *init(Hashtable *table, unsigned long size,
   return table;
 }
 
-static unsigned long hash(Hashtable *table, const char *str) {
-  return table->hash_func(str) % table->size;
+static unsigned hash(Hashtable *table, const char *str) {
+  return (unsigned)(table->hash_func(str) % table->size);
 }
 
 void add2table(Hashtable *table, const char *token) {
-  unsigned long index;
+  unsigned index;
   if(!table) return;
   index = hash(table, token);
   table->dict[index] = add(table->dict[index], token);
 }
 
 void count_words(Hashtable *table, const char *token) {
-  unsigned long index;
+  unsigned index;
   if(!table) return;
   index = hash(table, token);
   if(!(table->dict[index])) return;
@@ -154,7 +154,7 @@ void count_words(Hashtable *table, const char *token) {
 }
 
 void print_frequency(Hashtable *table, const char *token) {
-  unsigned long index;
+  unsigned index;
   if(!table) return;
   index = hash(table, token);
   if(!(table->dict[index])) return;
@@ -162,7 +162,7 @@ void print_frequency(Hashtable *table, const char *token) {
 }
 
 void free_table(Hashtable *table) {
-  unsigned long i;
+  unsigned i;
   if(!table) return;
   for(i = 0; i < table->size; i++)
     free_list(table->dict[i]);
