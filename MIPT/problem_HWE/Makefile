@@ -1,9 +1,11 @@
 NODEBUG ?= 1
 ifeq ($(NODEBUG), 1)
-    CFLAGS = -std=gnu99 -lm -Wall -O2 -DNDEBUG
+    CFLAGS = -std=gnu99 -Wall -O2 -DNDEBUG
 else
-    CFLAGS = -std=gnu99 -lm -Wall -fsanitize=undefined -fsanitize=address -fsanitize=leak -O2
+    CFLAGS = -std=gnu99 -Wall -fsanitize=undefined -fsanitize=address -fsanitize=leak -O2
 endif
+
+LDLIBS = -lm
 
 all: prime bench test
 
@@ -17,10 +19,10 @@ naive.o: naive.c naive.h
 	cc $(CFLAGS) -o $@ -c $<
 
 prime: str2i.o sieve.o prime.c
-	cc $(CFLAGS) str2i.o sieve.o prime.c -o prime
+	cc $(CFLAGS) str2i.o sieve.o prime.c $(LDLIBS) -o prime
 
 bench: sieve.o naive.o prime_bench.c simple-bench.h
-	cc $(CFLAGS) sieve.o naive.o prime_bench.c -o pb
+	cc $(CFLAGS) sieve.o naive.o prime_bench.c $(LDLIBS) -o pb
 
 test: prime
 	./prime 1 > prime.test 
