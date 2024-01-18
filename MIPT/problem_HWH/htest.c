@@ -32,30 +32,38 @@ int main(void) {
     str3 = malloc_wrap(len2 * sizeof(char));
     strcpy(str3, str2);
     
-    hashtable = init(hashtable, size, djb2, 1);
+    hashtable = init(hashtable, size, djb2, 3);
 
     /* Parse str2 with strtok and fill hashtable with results */
 
+    printf("\nDemonstration of insertion and rehashing with load factor = 3:\n\n");
     token = strtok(str2, " ");
     while (token != NULL) {
+        printf("Adding %s to hashtable\n\n", token);
         add2table(hashtable, token);
+        print_table(hashtable);
+        printf("\n");
         token = strtok(NULL, " ");
     };
     free(str2);
     
     /* Parse str1 with strtok and count frequencies */
 
+    //printf("COUNTING PART:\n");
     token = strtok(str1, " ");
     while (token != NULL) {
         count_words(hashtable, token);
+        //print_table(hashtable);
+        //printf("\n");
         token = strtok(NULL, " ");
     };
     free(str1);
 
     /* Print results and free hashtable */ 
-
+    
     token = strtok(str3, " ");
     while (token != NULL) {
+        printf("%s = ", token);
         print_frequency(hashtable, token);
         token = strtok(NULL, " ");
     };

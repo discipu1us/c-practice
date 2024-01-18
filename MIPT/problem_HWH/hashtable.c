@@ -1,6 +1,16 @@
+/*
+   Implemantation of hashtable with chaining.
+   Chaining is implemented with a linked list data structure.
+   This is not generic hashtable.
+   It's purpose is searching and counting the occurences of specified 
+        tokens(words) in a textual input.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <math.h>
 #include "hashtable.h"
 
 typedef struct node_t {
@@ -10,8 +20,11 @@ typedef struct node_t {
 } Node;
 
 struct hashtable_t {
-  unsigned size;
-  unsigned long (*hash_func)(const char *str);
+  unsigned size;  // size of hashtable
+  unsigned elem;  // number of elements in hashtable
+  double load;    // limiting load factor for automatic rehashing
+  char rehash;    // boolean to control automatic rehashing
+  unsigned long (*prehash)(const char *str); // custom hash function
   Node **dict;
 };
 
@@ -70,15 +83,13 @@ static void compare_and_print(Node *top, const char *token) {
   return;
 }
 
-#if 0
 static void print_list(Node *top) {
   if(!top) return;
   do {
-    printf("%s\n", top->token);
+    printf(" %s = %lu", top->token, top->freq);
     top = top->next;
   } while (top);
 }
-#endif
 
 static Node *add(Node *top, const char *token) {
   Node *new;
@@ -110,39 +121,106 @@ static void free_list(Node *top) {
   } while (top);
 }
 
-/* Hash functions for strings */
-
-#if 0
-//sdbm algo
-static unsigned long sdbm(const char *str) {
-  unsigned long hash = 0;
-  int c;
-  while ((c = *str++))
-    hash = c + (hash << 6) + (hash << 16) - hash;
-  return hash;
-}
-#endif
-
 /* Functions for struct hashtable_t aka Hashtable */
 
 Hashtable *init(Hashtable *table, unsigned size,
-  unsigned long (*hash)(const char *str)) {
+  unsigned long (*hash)(const char *str), double llf) {
   table = malloc_wrap(sizeof(Hashtable));
   table->size = size;
-  table->hash_func = hash;
+  table->elem = 0;
+  // user can choose llf from 0.5 to 2 (default 0.75)
+  table->load = (llf >= 0.5 && llf <= 3) ? llf : 0.75;
+  table->rehash = 1;
+  table->prehash = hash;
   table->dict = calloc_wrap(size, sizeof(Node*));
   return table;
 }
 
 static unsigned hash(Hashtable *table, const char *str) {
-  return (unsigned)(table->hash_func(str) % table->size);
+  return (unsigned)(table->prehash(str) % table->size);
+}
+
+double get_load(Hashtable *table) {
+  if(!table) return 0;
+  assert(table->size != 0);
+  return ((double)(table->elem) / table->size);
+}
+
+// function rehashing the contents of hashtable
+// no additional memory is required, only pointers manipulation
+static void rehash_bucket(Hashtable *table, unsigned i, unsigned size) {
+  unsigned index;
+  Node *tmp, *top;
+  // 1. Nothing to do
+  if(!table->dict[i])
+    return;
+  // 2. If a top node should be moved to a new bucket
+  index = hash(table, table->dict[i]->token);
+  while(index >= size) { // have to move head to new bucket
+    tmp = table->dict[i];
+    table->dict[i] = table->dict[i]->next;
+    tmp->next = table->dict[index];
+    table->dict[index] = tmp;
+    if((table->dict[i]))
+      index = hash(table, table->dict[i]->token);
+    else
+      return;
+  };
+  // 3. func pass the top node 
+  //    need to check if some deeper nodes should be moved
+  top = table->dict[i];
+  while(top->next) {
+    index = hash(table, top->next->token);
+    if(index >= size) {
+      tmp = top->next;
+      top->next = top->next->next;
+      tmp->next = table->dict[index];
+      table->dict[index] = tmp;
+    } else
+      top = top->next; // advance further 
+  };
+  return;
+}
+
+void rehash(Hashtable *table, double mult) {
+  Node **new_dict;
+  unsigned i, old_size, new_size;
+  if(mult <= 1 || mult > 3 ) return; // allow to expand only up to a factor of 3  
+  new_size = (unsigned)(round(table->size * mult));
+  if(new_size > table->size) {
+    new_dict = realloc(table->dict, new_size * sizeof(Node*));
+    if(new_dict == NULL) {  // failed to allocate memory
+      table->rehash = 0;    // turn off auto rehashing and leave original table       
+      return;
+    }
+    table->dict = new_dict;
+    old_size = table->size;
+    table->size = new_size; 
+    // Nullify uninitialized part of reallocated array
+    for(i = old_size; i < new_size; i++)
+      table->dict[i] = NULL;
+    // update elements postions with rehash_bucket
+    for(i = 0; i < old_size; i++) 
+      rehash_bucket(table, i, old_size);
+    return;
+  }
+  table->rehash = 0; // new_size overflow -> no rehashing
 }
 
 void add2table(Hashtable *table, const char *token) {
   unsigned index;
+  Node *prev;
   if(!table) return;
   index = hash(table, token);
+  prev = table->dict[index];
   table->dict[index] = add(table->dict[index], token);
+  if(prev != table->dict[index]) {
+    // above inequality means that new element was added
+    table->elem++;
+    // so it's time to check if rehashing is needed
+    if(table->rehash && (get_load(table) > table->load))
+      rehash(table, 2); // double the size
+  };
 }
 
 void count_words(Hashtable *table, const char *token) {
@@ -159,6 +237,16 @@ void print_frequency(Hashtable *table, const char *token) {
   index = hash(table, token);
   if(!(table->dict[index])) return;
   compare_and_print(table->dict[index], token);
+}
+
+// diagnostic function to print hashtable content.
+void print_table(Hashtable *table) {
+  unsigned i;
+  for(i = 0; i < table->size; i++) {
+    printf("%u:", i);
+    print_list(table->dict[i]);
+    printf("\n");
+  };
 }
 
 void free_table(Hashtable *table) {

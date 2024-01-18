@@ -5,7 +5,9 @@ else
     CFLAGS = -std=gnu99 -Wall -fsanitize=undefined -fsanitize=address -fsanitize=leak -O2
 endif
 
-all: hash
+LDLIBS = -lm
+
+all: hash test
 
 hashtable.o: hashtable.c hashtable.h
 
@@ -13,7 +15,10 @@ hashtable.o: hashtable.c hashtable.h
 	cc $(CFLAGS) -o $@ -c $<
 
 hash: hashtable.o main.c
-	cc $(CFLAGS) hashtable.o main.c -o hash
+	cc $(CFLAGS) hashtable.o main.c -o hash $(LDLIBS)
+
+test: hashtable.o htest.c
+	cc $(CFLAGS) hashtable.o htest.c -o htest $(LDLIBS)
 
 clean:
-	rm -f hash *.o
+	rm -f hash htest *.o
